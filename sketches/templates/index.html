@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>COGS 260 Demo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<!---->
+<!--<div class="container">	-->
+<!--	-->
+<!--</div>-->
+<div class="container">
+	<div class="row">
+		<div class="col-sm-4"></div>
+		<div class="col-sm-4">
+			<h2>COGS 260 Final Demo</h2>
+		</div>
+		<div class="col-sm-4"></div>
+	</div>
+	<div class="row ">
+		<!--<div class="col-sm-2"></div>-->
+		<div class="col-md-4 jumbotron">
+			<h3>Before:</h3>
+    		<img id="before" src="#" alt="your image" style="visibility: hidden; width:50px; height:50px" />
+		</div>
+		<div class="col-md-4 ">
+			
+			<form id="form">
+				<div class="form-group">
+	    		<label >Select image to upload:</label>
+	    		<input class="form-control" id = "image" type='file' accept="image/*" />
+	    		<input class="btn" type="submit" value="Upload Image" name="submit">
+				</div>
+			</form>
+		</div>
+		<!--<div class="col-sm-2"></div>-->
+		<div class="col-md-4 jumbotron">
+			<h3>After:</h3>
+			<img id="after" src="#" alt="your image" style="visibility: hidden; width:50px; height:50px" />
+		</div>
+		<!--<div class="col-sm-2"></div>-->
+	</div>
+	<!--</div>-->
+
+
+	<!--<div class="row">-->
+	<!--	-->
+	<!--</div>-->
+</div>
+</body>
+</html>
+
+<script type="text/javascript">
+//	document.getElementById("image").onchange = function () {
+//    var reader = new FileReader();
+//
+//    reader.onload = function (e) {
+//        // get loaded data and render thumbnail.
+//        document.getElementById("preview").src = e.target.result;
+//    };
+//
+//    // read the image file as a data URL.
+//    reader.readAsDataURL(this.files[0]);
+	//function readURL(input) {
+	document.getElementById("image").onchange = function () {
+
+    
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#before')
+                        .attr('src', e.target.result)
+                        .width(150)
+                        .height(200);
+                };
+
+                reader.readAsDataURL(this.files[0]);
+                document.getElementById("before").style.visibility = "visible";
+            }
+        //}
+	}
+				
+	
+	function encode (input) {
+    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var output = "";
+    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+    var i = 0;
+
+    while (i < input.length) {
+        chr1 = input[i++];
+        chr2 = i < input.length ? input[i++] : Number.NaN; // Not sure if the index 
+        chr3 = i < input.length ? input[i++] : Number.NaN; // checks are needed here
+
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+
+        if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+        } else if (isNaN(chr3)) {
+            enc4 = 64;
+        }
+        output += keyStr.charAt(enc1) + keyStr.charAt(enc2) +
+                  keyStr.charAt(enc3) + keyStr.charAt(enc4);
+    }
+    return output;
+}
+	
+	
+	var global,global2;
+	$('#form').submit(function(e){
+        e.preventDefault();
+        var formData = new FormData();
+        formData.append('pic', $('input[type=file]')[0].files[0]); 
+        $.ajax({
+            url:'/convert/',
+            type:'post',
+            enctype:"multipart/form-data",
+            data:formData,
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false, 
+            success:function(r){
+								 $.ajax({
+										url:'/download/',
+										//type:'post',
+										//enctype:"multipart/form-data",
+										//data:formData,
+										contentType: "image/jpeg", // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+										//processData: false, 
+										success:function(result){
+												$('#after')
+                        //.attr('src', e.target.result)
+                        .width(150)
+                        .height(200);
+												 document.getElementById("after").src="data:image/jpeg;base64,"+result;
+												 document.getElementById("after").style.visibility = "visible";
+										}
+												//whatever you wanna do after the form is successfully submitted
+								})
+						}
+                //whatever you wanna do after the form is successfully submitted
+        })
+    });
+	/*global = result;
+								 var reader = new FileReader();
+                 reader.onload = function (e) {
+										global2 = e;
+										var img = new Uint8Array(e.target.result);
+                    $('#after')
+                        .attr('src', encode(img))
+                        .width(150)
+                        .height(200);
+                };
+								 var blob = new Blob([result]);
+								 global = result;
+								 reader.readAsArrayBuffer(blob);
+								 //document.getElementById("after").src = "data:image/png;base64,"+result;
+								 document.getElementById("after").style.visibility = "visible";*/
+</script>

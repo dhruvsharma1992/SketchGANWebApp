@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    </head>
+<body>
+
+<div>
+    <img id="preview" />
+    <form id="form">
+      <input type="file" name="pic" accept="image/*" id="image">
+      <input type="submit">
+    </form>
+</div>
+<div>
+    <img id="postview" />
+</div>
+
+
+
+
+</body>
+<script>
+    document.getElementById("image").onchange = function () {
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+        // get loaded data and render thumbnail.
+        document.getElementById("preview").src = e.target.result;
+    };
+
+    // read the image file as a data URL.
+    reader.readAsDataURL(this.files[0]);
+    
+    $('#form').submit(function(e){
+        e.preventDefault();
+        var formData = new FormData();
+        formData.append('pic', $('input[type=file]')[0].files[0]); 
+        $.ajax({
+            url:'/convert/',
+            type:'post',
+            enctype:"multipart/form-data",
+            data:formData,
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false, 
+            success:function(result){
+                 document.getElementById("postview").src = result;
+                //whatever you wanna do after the form is successfully submitted
+        }
+    });
+});
+};
+</script>
+</html>
